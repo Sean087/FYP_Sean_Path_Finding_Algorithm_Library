@@ -7,7 +7,7 @@
 //
 
 #include "stdafx.h"
-#include "PathAlgorithm.h"
+#include "PathAlgorithmNonSDL.h"
 
 namespace PathAlgorithm
 {
@@ -24,26 +24,26 @@ namespace PathAlgorithm
 	*			c = 1
 	* ------------------------------------------------------------------------------------------
 	*/
-	float Functions::distance(Node* a, Node* b)
+	float Functions::distance(Node_NoSDL* a, Node_NoSDL* b)
 	{
 		return sqrtf((a->x - b->x)*(a->x - b->x) + (a->y - b->y)*(a->y - b->y));
 	}
 
-	float Functions::heuristic(Node* a, Node* b)
+	float Functions::heuristic(Node_NoSDL* a, Node_NoSDL* b)
 	{
 		return distance(a, b);															// Heuristic is the distance other heuristics can be placed here in the future
 	}
 
-	void Functions::AStarSolver(Node* start, Node* end)
+	void Functions::AStarSolver(Node_NoSDL* start, Node_NoSDL* end)
 	{
-		Node *nodeStart = start;
-		Node *nodeEnd = end;
-		Node *nodeCurrent = nodeStart;													// Set the current node to the start node
+		Node_NoSDL *nodeStart = start;
+		Node_NoSDL *nodeEnd = end;
+		Node_NoSDL *nodeCurrent = nodeStart;											// Set the current node to the start node
 		nodeStart->fCostSoFar = 0.0f;													// The g(n) is 0 since we didn't start searching yet
 		nodeStart->fEstimatedTotalCost = heuristic(nodeStart, nodeEnd);					// f(n) = distance between start node and end node
 
 		/* ------------------------------------------------------------------------------------------
-		*	While the algorithm is searching, newly discovered open nodes are pushed to the 
+		*	While the algorithm is searching, newly discovered open nodes are pushed to the
 		*	onto not-tested list, which queues them for testing for a potential path.
 		*
 		*   First node to test is the start node, push it onto the list for consideration.
@@ -51,20 +51,20 @@ namespace PathAlgorithm
 		*	TO DO: Attempt to change list to priority queue to avoid manual sorting.
 		* ------------------------------------------------------------------------------------------
 		*/
-		std::list<Node*> openNodes;														// List of open nodes where new nodes are queded for testing
+		std::list<Node_NoSDL*> openNodes;												// List of open nodes where new nodes are queded for testing
 		openNodes.push_back(nodeStart);													// Add the start node to be tested
 
 		/* ------------------------------------------------------------------------------------------
 		*	CONDITION: (!listNotTestedNodes.empty() && !nodeCurrent->bVisited)
 		*		- While there are nodes to test && the end node has not been visited, run A*
 		*		- Just because it has found the end node doesn't mean it found the shortest path.
-		*		- This will find a potentially optimal path by continuing the search 
+		*		- This will find a potentially optimal path by continuing the search
 		*		  while potentially shorter paths exist.
 		* ------------------------------------------------------------------------------------------
 		*/
 		while (!openNodes.empty() && !nodeEnd->bVisited)								// Finds the shortest path - while there are nodes to test and the end node has not been visited
 		{
-			openNodes.sort([](const Node* leftMostNode, const Node* rightMostNode)
+			openNodes.sort([](const Node_NoSDL* leftMostNode, const Node_NoSDL* rightMostNode)
 			{ return leftMostNode->fEstimatedTotalCost < rightMostNode->fEstimatedTotalCost; });	// Sort all untested nodes by lowest g(n) (possible shortest path)
 
 			while (!openNodes.empty() && openNodes.front()->bVisited)					// Potential to have already-visited nodes at front of list therefore:
@@ -105,7 +105,7 @@ namespace PathAlgorithm
 					*
 					*	When sort the open node list, it may see that the current path has become too long
 					*	and ditch it in favour of a new potentially shorter path. This is what sets A* apart
-					*	from Dijkstra's algorithm.
+					*	from Dijskstra's
 					* ------------------------------------------------------------------------------------------
 					*/
 					nodeNeighbour->fEstimatedTotalCost = nodeNeighbour->fCostSoFar + heuristic(nodeNeighbour, nodeEnd);
